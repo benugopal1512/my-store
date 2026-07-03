@@ -1,5 +1,5 @@
-// CHANGE THIS TO YOUR LIVE RENDER URL LATER (e.g., "https://grocery-api.onrender.com")
-const BACKEND_URL = "http://localhost:5000"; 
+// CHANGE THIS TO YOUR LIVE RENDER URL
+const BACKEND_URL = "https://my-store-c40u.onrender.com"; 
 const API_BASE = `${BACKEND_URL}/api`;
 
 let storeCatalog = [];
@@ -197,7 +197,6 @@ function updateBasketUI() {
 }
 
 // --- Checkout Modal Logic ---
-// UPDATED: Now mapped to confirmCheckout logic
 async function confirmCheckout() {
     if (basketItems.length === 0) return alert("Your cart basket is empty!");
 
