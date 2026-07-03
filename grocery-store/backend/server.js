@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
+require('dotenv').config();
 
 const app = express();
 
@@ -10,8 +11,18 @@ app.use(cors());
 app.use(express.json());
 
 // --- MONGODB CONNECTION ---
-const ATLAS_URI = 'mongodb://benugopalagrawal615_db_user:' + encodeURIComponent('benu1512') + '@ac-vclfl5v-shard-00-00.6p4otkk.mongodb.net:27017,ac-vclfl5v-shard-00-01.6p4otkk.mongodb.net:27017,ac-vclfl5v-shard-00-02.6p4otkk.mongodb.net:27017/?ssl=true&replicaSet=atlas-aqzi5n-shard-0&authSource=admin&appName=Cluster0';
-const MONGO_URI = process.env.MONGO_URI || ATLAS_URI;
+// ⚠️ SECURITY NOTE: this file previously had your Atlas username/password
+// hardcoded as a fallback. That's a real risk if this repo is ever public.
+// Set MONGO_URI in your Render environment variables (and in a local .env
+// file that's in your .gitignore) instead of hardcoding credentials here.
+// If your DB password has ever been committed to a public repo, rotate it
+// in MongoDB Atlas now, even after removing it from the code.
+const MONGO_URI = process.env.MONGO_URI;
+
+if (!MONGO_URI) {
+  console.error('❌ MONGO_URI is not set. Add it to your environment variables (.env locally, Render dashboard in production).');
+  process.exit(1);
+}
 
 mongoose.connect(MONGO_URI)
   .then(() => console.log('Successfully connected to MongoDB instance'))
@@ -73,7 +84,6 @@ app.post('/api/auth/register', async (req, res) => {
       return res.status(400).json({ success: false, message: "Username is already taken." });
     }
 
-    // Securely hash unique user password
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
@@ -111,10 +121,10 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(401).json({ success: false, message: "Invalid username or password configuration." });
     }
 
-    return res.json({ 
-      success: true, 
-      username: user.username, 
-      role: user.role 
+    return res.json({
+      success: true,
+      username: user.username,
+      role: user.role
     });
 
   } catch (error) {
@@ -162,7 +172,7 @@ app.get('/api/orders', async (req, res) => {
 app.post('/api/orders', async (req, res) => {
   try {
     const { customerName, phone, address, paymentMethod, items, totalAmount } = req.body;
-    
+
     const newOrder = new Order({
       customerName,
       phone,
