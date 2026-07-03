@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreshBasket Portal</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; margin: 0; padding: 0; color: #2c3e50; }
+        .hidden { display: none !important; }
+        
+        /* Login Screen Styles */
+        .login-container { max-width: 400px; margin: 100px auto; padding: 30px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); text-align: center; }
+        .login-container h2 { margin-top: 0; color: #27ae60; }
+        .input-group { display: flex; flex-direction: column; margin-bottom: 15px; text-align: left; }
+        .input-group label { font-size: 13px; font-weight: bold; color: #7f8c8d; margin-bottom: 5px; }
+        .input-group input, .input-group select { padding: 12px; border: 1px solid #ccd1d9; border-radius: 6px; font-size: 14px; outline: none; }
+        .btn-action { background: #27ae60; color: white; border: none; padding: 12px; font-weight: bold; font-size: 15px; border-radius: 6px; width: 100%; cursor: pointer; transition: background 0.2s; }
+        .btn-action:hover { background: #219653; }
+        .toggle-link { color: #3498db; cursor: pointer; text-decoration: underline; font-size: 13px; display: inline-block; margin-top: 15px; }
+
+        /* Navigation Header */
+        header { background: #27ae60; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        header h1 { margin: 0; font-size: 22px; }
+        .btn-logout { background: transparent; border: 2px solid white; color: white; padding: 6px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        .btn-logout:hover { background: rgba(255,255,255,0.15); }
+        .view-content { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+
+        /* Customer Interface Grid Layout */
+        .customer-layout { display: grid; grid-template-columns: 3fr 1fr; gap: 30px; }
+        @media (max-width: 768px) { .customer-layout { grid-template-columns: 1fr; } }
+        .search-box { width: 100%; max-width: 500px; padding: 12px 20px; font-size: 15px; border: 2px solid #2ecc71; border-radius: 25px; outline: none; margin-bottom: 25px; box-shadow: 0 3px 8px rgba(46, 204, 113, 0.1); box-sizing: border-box; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        .product-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.03); border: 1px solid #eaeedb; display: flex; flex-direction: column; justify-content: space-between; }
+        .product-img { width: 100%; height: 150px; object-fit: cover; background: #eee; }
+        .product-info { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .product-price { font-size: 18px; font-weight: bold; color: #27ae60; margin: 5px 0; }
+        
+        /* Floating Basket Styling */
+        .cart-panel { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; height: fit-content; position: sticky; top: 20px; }
+        .cart-items { margin: 15px 0; max-height: 200px; overflow-y: auto; }
+        .cart-item { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; border-bottom: 1px dashed #f1f5f9; }
+
+        /* Admin Management Styling */
+        .admin-section { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        .order-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px; border-left: 5px solid #e67e22; }
+        .order-card.delivered { border-left-color: #2ecc71; opacity: 0.85; }
+        .order-header { display: flex; justify-content: space-between; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px; }
+        .item-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; font-size: 14px; border-bottom: 1px dashed #eee; }
+        .status-badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
+        .status-pending { background: #ffeaa7; color: #d63031; }
+        .status-delivered { background: #d4edda; color: #155724; }
+    </style>
+</head>
+<body>
+
+    <!-- Auth View -->
+    <div id="auth-view" class="login-container">
+        <h2>🌿 FreshBasket Portal</h2>
+        <p id="auth-subtitle" style="color: #7f8c8d; font-size: 13px; margin-bottom: 20px;">Sign in to browse items or manage store orders</p>
+        
+        <div id="login-form-wrapper">
+            <form onsubmit="handleAuthLogin(event)">
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Enter username" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="btn-action">Sign In Securely</button>
+            </form>
+            <span class="toggle-link" onclick="toggleAuthMode(true)">New to FreshBasket? Create an account</span>
+        </div>
+
+        <div id="register-form-wrapper" class="hidden">
+            <form onsubmit="handleAuthRegister(event)">
+                <div class="input-group">
+                    <label for="reg-username">Choose Username</label>
+                    <input type="text" id="reg-username" placeholder="Pick a unique username" required>
+                </div>
+                <div class="input-group">
+                    <label for="reg-password">Choose Password</label>
+                    <input type="password" id="reg-password" placeholder="Create a secure password" required>
+                </div>
+                <button type="submit" class="btn-action" style="background: #3498db;">Register Account</button>
+            </form>
+            <span class="toggle-link" onclick="toggleAuthMode(false)">Already have an account? Sign In</span>
+        </div>
+    </div>
+
+    <!-- Workspace -->
+    <div id="app-workspace" class="hidden">
+        <header>
+            <h1 id="portal-title">🌿 FreshBasket Portal</h1>
+            <div>
+                <span id="user-badge" style="margin-right: 15px; font-size: 14px; font-weight: bold; background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 15px;"></span>
+                <button class="btn-logout" onclick="triggerSessionLogout()">Logout</button>
+            </div>
+        </header>
+
+        <div class="view-content">
+            <div id="view-customer" class="customer-layout hidden">
+                <div>
+                    <input type="text" id="search-input" class="search-box" placeholder="🔍 Search fresh fruits, vegetables, dairy essentials..." oninput="filterCatalogSearch()">
+                    <div id="products-grid" class="products-grid">Syncing catalog items...</div>
+                </div>
+                <div class="cart-panel">
+                    <h3 style="margin-top:0;">🛒 My Basket</h3>
+                    <div id="cart-items" class="cart-items">Your basket is empty.</div>
+                    <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:16px; margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
+                        <span>Total Sum:</span> <span id="cart-total" style="color:#27ae60;">₹0</span>
+                    </div>
+                    <button class="btn-action" style="background:#e67e22; margin-top:15px;" onclick="showOrderModal()">Place Secure Order</button>
+                </div>
+            </div>
+
+            <div id="order-modal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index: 1000;">
+                <div style="background:white; padding:30px; border-radius:12px; width:350px;">
+                    <h3>📋 Enter Delivery Details</h3>
+                    <input type="text" id="cust-name" placeholder="Full Name" style="width:100%; padding:10px; margin-bottom:10px; box-sizing:border-box;" required>
+                    <input type="tel" id="cust-phone" placeholder="Mobile Number" style="width:100%; padding:10px; margin-bottom:10px; box-sizing:border-box;" required>
+                    <input type="text" id="cust-address" placeholder="Delivery Address" style="width:100%; padding:10px; margin-bottom:10px; box-sizing:border-box;" required>
+                    <select id="payment-method" style="width:100%; padding:10px; margin-bottom:20px;">
+                        <option value="Cash on Delivery (COD)">Cash on Delivery (COD)</option>
+                        <option value="UPI on Delivery">UPI on Delivery</option>
+                    </select>
+                    <div style="display:flex; gap:10px;">
+                        <button onclick="closeModal()" style="padding:10px; width:50%;">Cancel</button>
+                        <button onclick="confirmCheckout()" style="padding:10px; width:50%; background:#27ae60; color:white; border:none;">Confirm Order</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-admin" class="hidden">
+                <div class="admin-section">
+                    <h3 style="margin-top:0; color:#34495e;">➕ Introduce New Item Entry</h3>
+                    <form id="add-product-form" onsubmit="pushNewInventoryItem(event)">
+                        <div class="form-grid">
+                            <div class="input-group"><label>Item Name</label><input type="text" id="prod-name" placeholder="Organic Apples" required></div>
+                            <div class="input-group"><label>Cost (₹)</label><input type="number" id="prod-price" required></div>
+                            <div class="input-group"><label>Selling Unit</label><input type="text" id="prod-unit" placeholder="per kg" required></div>
+                            <div class="input-group"><label>Category</label><input type="text" id="prod-category" placeholder="e.g., Organic, Dairy" required></div>
+                        </div>
+                        <div class="input-group" style="margin-bottom:15px;"><label>Image Link Address URL</label><input type="url" id="prod-image" placeholder="https://images.unsplash.com/..."></div>
+                        <button type="submit" class="btn-action" style="background:#3498db; width: auto; padding: 10px 25px;">🚀 Publish to Frontend</button>
+                    </form>
+                </div>
+                <h3 style="color:#2c3e50; margin-bottom:15px;">📦 Live Incoming Orders</h3>
+                <div id="orders-container">Loading latest order entries stream...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
